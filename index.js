@@ -1,10 +1,22 @@
 const express = require('express');
 const readline = require('readline');
 const fs = require('fs');
+const readfiles = require('readfiles')
 const app = express();
 
+var downloadFolder = "";
 app.listen(3000, function(){
   console.log("integration-generation-helper is running...");
+  if(process.argv.length < 3){
+    console.log("the directory of downloaded files is set to current folder.");
+    downloadFolder="./";
+  }else{
+    for(var i = 2; i < process.argv.length; i++){
+      downloadFolder += process.argv[i] + " ";
+    }
+    downloadFolder = downloadFolder.trim();
+    console.log("the directory of downloaded files is set to " + downloadFolder + ".");
+  }
   const rl = readline.createInterface({
     input: process.stdin
   });
@@ -66,4 +78,27 @@ function createFolder(){
 
 function createFiles(){
   console.log("creating files...");
+  var files = fs.readdirSync(downloadFolder);
+  var processedFiles = files.filter(function (file) {
+                          var isJSON = file.indexOf("JSON") >= 0 || file.indexOf("json") >= 0;
+                          return isJSON;
+                        });
+  
+  if(processedFiles.length < lastNfiles){
+    console.log("please enter a valid number");
+    return;
+  }
+  
+  processedFiles.sort(function(file1, file2){
+    var timestamp1 = fs.statSync(downloadFolder + "/" + file1).mtime.getTime();
+    var timestamp2 = fs.statSync(downloadFolder + "/" + file2).mtime.getTime();
+    return timestamp2 - timestamp1;
+  });
+  
+  console.log(processedFiles);
+  
+  for(var i = 0; i < lastNfiles; i++){
+    var newDir = specDir + "/" + testDir + "/" + processedFiles[i];
+    fs.writeFileSync(newDir, fs.readFileSync(downloadFolder + "/" + processedFiles[i]));
+  }
 }
