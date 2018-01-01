@@ -1,7 +1,7 @@
 # integration-generation-helper
 
 ## Setup:
-`git clone` this repository to a desired directory (e.g. "C:/")
+`git clone` this repository to a desired directory (e.g. "C:/") <br>
 run `npm install` to install all dependencies
 
 ## Usage:
